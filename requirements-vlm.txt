@@ -1,0 +1,9 @@
+torch
+transformers>=4.45.0,<5.0.0
+accelerate
+pillow
+pdf2image
+qwen-vl-utils
+verovio
+optimum-quanto
+bitsandbytes

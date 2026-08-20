@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+*.log
+
+# Local run outputs (keep example results in repo)
+vlm_output/*
+!vlm_output/assets_full_pipeline/
+!vlm_output/assets_full_pipeline/**
