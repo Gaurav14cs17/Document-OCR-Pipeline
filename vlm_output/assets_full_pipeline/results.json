@@ -1,0 +1,445 @@
+{
+  "input": "assets/table_page.png",
+  "backend": "florence2",
+  "model": "microsoft/Florence-2-base-ft",
+  "quant": "auto",
+  "device": "cpu",
+  "fast": false,
+  "max_image_size": 1024,
+  "max_tokens": 2048,
+  "dpi": null,
+  "pages": [
+    {
+      "page_index": 0,
+      "tasks": {
+        "layout": {
+          "task": "layout",
+          "backend": "florence2",
+          "blocks": [],
+          "image_size": {
+            "original": [
+              694,
+              413
+            ],
+            "model_input": [
+              694,
+              413
+            ],
+            "dpi": 96,
+            "max_image_size": 1024
+          }
+        },
+        "ocr": {
+          "task": "ocr",
+          "backend": "florence2",
+          "html": "<p>TABLESCSS StylesThe CSS properties for tables and cells is increased over that in HTML2pdf. It includesreception of THEAD, TH and allows property of background-color to be set for TR.See below for other facilities such as autosizing, rotation.Row 1This is data upThis is the dataThis is a dataPThis is all dataThisis is data pThis is large textThis is bold data pTHIS is bold Data out ofThis is solid data out ofbrLists in a TableThis is normal data out if this is data outdivThis isdata out ofdivThisis data out OfThis is long dataThis Is dataRow 3Row 4 cctb-cellThis is datThis is DataRow 5Also dataAlso dataRow 6Also dataRow 7Also dataAlso dataAlsodataRow 8Also data</p>",
+          "text": "TABLESCSS StylesThe CSS properties for tables and cells is increased over that in HTML2pdf. It includesreception of THEAD, TH and allows property of background-color to be set for TR.See below for other facilities such as autosizing, rotation.Row 1This is data upThis is the dataThis is a dataPThis is all dataThisis is data pThis is large textThis is bold data pTHIS is bold Data out ofThis is solid data out ofbrLists in a TableThis is normal data out if this is data outdivThis isdata out ofdivThisis data out OfThis is long dataThis Is dataRow 3Row 4 cctb-cellThis is datThis is DataRow 5Also dataAlso dataRow 6Also dataRow 7Also dataAlso dataAlsodataRow 8Also data",
+          "image_size": {
+            "original": [
+              694,
+              413
+            ],
+            "model_input": [
+              694,
+              413
+            ],
+            "dpi": 192,
+            "max_image_size": 1024
+          }
+        },
+        "table": {
+          "task": "table",
+          "backend": "florence2",
+          "tables": [],
+          "note": "Florence-2 has limited table structure support. Use --backend qwen for table JSON.",
+          "fallback_text": "TABLESCSS StylesThe CSS properties for tables and cells is increased over that in HTML2pdf. It includesreception of THEAD, TH and allows property of background-color to be set for TR.See below for other facilities such as autosizing, rotation.Row 1This is data upThis is the dataThis is a dataPThis is all dataThisis is data pThis is large textThis is bold data pTHIS is bold Data out ofThis is solid data out ofbrLists in a TableThis is normal data out if this is data outdivThis isdata out ofdivThisis data out OfThis is long dataThis Is dataRow 3Row 4 cctb-cellThis is datThis is DataRow 5Also dataAlso dataRow 6Also dataRow 7Also dataAlso dataAlsodataRow 8Also data",
+          "image_size": {
+            "original": [
+              694,
+              413
+            ],
+            "model_input": [
+              694,
+              413
+            ],
+            "dpi": 192,
+            "max_image_size": 1024
+          }
+        },
+        "detect": {
+          "task": "detect",
+          "backend": "florence2",
+          "text_lines": [
+            {
+              "text": "TABLES",
+              "bbox": [
+                117,
+                15,
+                172,
+                29
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "CSS Styles",
+              "bbox": [
+                117,
+                44,
+                266,
+                74
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "The CSS properties for tables and cells is increased over that in HTML2PDF. It includes",
+              "bbox": [
+                117,
+                81,
+                602,
+                95
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "reception of THEAD, TH and allows property of background-color to be set for TR.",
+              "bbox": [
+                117,
+                97,
+                572,
+                110
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "See below for other facilities such as autosizing, rotation.",
+              "bbox": [
+                117,
+                112,
+                450,
+                125
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 1",
+              "bbox": [
+                125,
+                135,
+                154,
+                144
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 2",
+              "bbox": [
+                125,
+                151,
+                155,
+                161
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is data up",
+              "bbox": [
+                207,
+                151,
+                268,
+                162
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is a data of",
+              "bbox": [
+                207,
+                162,
+                296,
+                174
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is is data",
+              "bbox": [
+                416,
+                151,
+                463,
+                161
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Thisis is data p",
+              "bbox": [
+                207,
+                178,
+                404,
+                200
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is large text",
+              "bbox": [
+                416,
+                162,
+                515,
+                177
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is bold data p",
+              "bbox": [
+                207,
+                201,
+                328,
+                214
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is solid data out of",
+              "bbox": [
+                207,
+                214,
+                328,
+                224
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Lists in a Table",
+              "bbox": [
+                207,
+                229,
+                402,
+                255
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is normal data out by",
+              "bbox": [
+                207,
+                260,
+                275,
+                272
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This isdata out ofdiv",
+              "bbox": [
+                207,
+                272,
+                304,
+                284
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is the data out if",
+              "bbox": [
+                207,
+                285,
+                281,
+                296
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is long data of",
+              "bbox": [
+                205,
+                296,
+                303,
+                307
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 3",
+              "bbox": [
+                125,
+                313,
+                155,
+                322
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This is Data",
+              "bbox": [
+                416,
+                313,
+                468,
+                323
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 4 cctb-cell",
+              "bbox": [
+                125,
+                328,
+                196,
+                339
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "This isData",
+              "bbox": [
+                207,
+                329,
+                258,
+                339
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Thisis it data",
+              "bbox": [
+                416,
+                329,
+                468,
+                339
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 5",
+              "bbox": [
+                125,
+                345,
+                155,
+                355
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Also data",
+              "bbox": [
+                207,
+                345,
+                250,
+                355
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Also Data",
+              "bbox": [
+                416,
+                345,
+                459,
+                355
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 6",
+              "bbox": [
+                125,
+                360,
+                155,
+                370
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Also data",
+              "bbox": [
+                416,
+                361,
+                459,
+                371
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 7",
+              "bbox": [
+                125,
+                377,
+                155,
+                387
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Also data",
+              "bbox": [
+                207,
+                377,
+                250,
+                387
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Alsodata",
+              "bbox": [
+                416,
+                377,
+                459,
+                387
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Row 8",
+              "bbox": [
+                125,
+                394,
+                155,
+                403
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Also data",
+              "bbox": [
+                206,
+                394,
+                250,
+                403
+              ],
+              "confidence": 1.0
+            },
+            {
+              "text": "Also Data",
+              "bbox": [
+                416,
+                394,
+                459,
+                403
+              ],
+              "confidence": 1.0
+            }
+          ],
+          "image_size": {
+            "original": [
+              694,
+              413
+            ],
+            "model_input": [
+              694,
+              413
+            ],
+            "dpi": 96,
+            "max_image_size": 1024
+          }
+        }
+      },
+      "overlay_images": [
+        "vlm_output/assets_full_pipeline/page_0/page_0_layout_bbox.png",
+        "vlm_output/assets_full_pipeline/page_0/page_0_detect_bbox.png",
+        "vlm_output/assets_full_pipeline/page_0/page_0_comparison.png"
+      ]
+    }
+  ]
+}
