@@ -18,6 +18,7 @@ PDF or image  →  render the page  →  VLM backend  →  layout / detect / ocr
 
 ```bash
 pip install -r requirements-vlm.txt
+python -m vlm_pipeline download --backend florence2
 ```
 
 If you're working with PDFs, you'll also need poppler:
@@ -209,6 +210,58 @@ python -m vlm_pipeline page.pdf \
 
 The first Qwen run downloads ~6 GB of weights from Hugging Face. After that, it's cached locally.
 
+### Where models are stored
+
+`models/` holds **downloaded weights only** — no Python code. One folder per model (~9–11 files each after cleanup):
+
+```
+models/
+├── Florence-2-base-ft/          ← --backend florence2  (~445 MB)
+├── Qwen2.5-VL-3B-Instruct/      ← --backend qwen       (~7 GB)
+└── GOT-OCR2_0/                  ← --backend gotocr2    (~1.4 GB)
+```
+
+Each folder contains only what inference needs: `config.json`, `*.safetensors`, tokenizer files, and HF model code (e.g. `modeling_*.py`).
+
+Backend code lives in `vlm_pipeline/backends/` — separate from weights. See [backends/README.md](vlm_pipeline/backends/README.md) for a full explanation of every method.
+
+**Download all models upfront:**
+
+```bash
+python -m vlm_pipeline download
+```
+
+**Download one backend:**
+
+```bash
+python -m vlm_pipeline download --backend florence2
+```
+
+**Run OCR** (auto-downloads if the model folder is missing):
+
+```bash
+python -m vlm_pipeline assets/table_page.png \
+  --backend florence2 \
+  --task ocr \
+  --page 0
+```
+
+**Remove HF clutter** (README, `.lock` files, sample images):
+
+```bash
+python -m vlm_pipeline prune-models
+```
+
+```bash
+# custom weights location
+python -m vlm_pipeline download --models-dir /path/to/my_models
+
+# use Hugging Face cache (~/.cache/huggingface) instead
+python -m vlm_pipeline run page.png --backend florence2 --hf-cache
+```
+
+Model weight files are large and are **not** committed to git (`models/*` is in `.gitignore`).
+
 ---
 
 ## Commands you'll actually use
@@ -337,7 +390,9 @@ print(result["pages"][0]["tasks"]["ocr"]["text"])
 
 ---
 
-## How it works (short version)
+## How it works
+
+### Pipeline stages
 
 Each task sends the page to the same model with a different prompt:
 
@@ -349,6 +404,48 @@ table   →  "extract table structure"    (rendered at 192 DPI)
 ```
 
 Higher DPI for OCR and tables because small text needs more pixels. Layout and detection work fine at lower DPI, which keeps them faster.
+
+### Architecture
+
+```
+Your file (PDF/PNG)
+       │
+       ▼
+  pipeline.py          ← loads pages, resizes, saves overlays
+       │
+       ▼
+  backends/florence2.py  (or qwen.py / got_ocr2.py)
+       │
+       ▼
+  models/Florence-2-base-ft/   ← weights on disk
+       │
+       ▼
+  results.json + overlay PNGs
+```
+
+| Layer | Location | Role |
+|-------|----------|------|
+| CLI | `vlm_pipeline/__main__.py` | Parse args, call pipeline |
+| Pipeline | `vlm_pipeline/pipeline.py` | Page loading, DPI, output files |
+| Backends | `vlm_pipeline/backends/` | Model-specific inference logic |
+| Weights | `models/<model_name>/` | Downloaded Hugging Face files |
+| Utils | `vlm_pipeline/utils/` | Image padding, prompts, quantization |
+
+**Full backend documentation:** [vlm_pipeline/backends/README.md](vlm_pipeline/backends/README.md)
+
+### Florence-2 backend — function flow
+
+The default backend (`florence2.py`) routes each task through a shared pipeline:
+
+1. **`run_task`** — entry; picks handler via `_dispatch`
+2. **`_generate`** — pad image → processor → `model.generate` → `batch_decode`
+3. **`_parse_florence`** — `post_process_generation` → structured dict
+4. **Task handler** — `_detect`, `_ocr`, `_layout`, or `_table`
+5. **Helpers** — `pad_info`, `quad_to_bbox`, `unmap_bbox`, `clean_florence_text`
+
+![Florence2Backend function flow](vlm_pipeline/backends/florence2_backend_flow.png)
+
+See [backends/README.md](vlm_pipeline/backends/README.md) for a method-by-method explanation of every function.
 
 ---
 
@@ -375,19 +472,39 @@ Add `--quant int4` and `--fast`. Close other heavy apps. A 3B vision model is a 
 
 ```
 Document-OCR-Pipeline/
-├── README.md
+├── README.md                       ← you are here
 ├── requirements-vlm.txt
+├── models/                         ← downloaded weights only (gitignored)
+│   ├── Florence-2-base-ft/         ←   --backend florence2
+│   ├── Qwen2.5-VL-3B-Instruct/     ←   --backend qwen
+│   └── GOT-OCR2_0/                 ←   --backend gotocr2
 ├── assets/
-│   ├── pipeline_diagram.png
-│   ├── table_page.png
+│   ├── pipeline_diagram.png        ← high-level pipeline overview
+│   ├── table_page.png              ← sample input
 │   └── sample.pdf
 └── vlm_pipeline/
-    ├── __main__.py            ← CLI: python -m vlm_pipeline
-    ├── pipeline.py
-    ├── core/config.py
-    ├── utils/                 ← image, io, text, quant, prompts, visualize
-    └── backends/              ← base, florence2, qwen, got_ocr2
+    ├── __main__.py                 ← CLI: run | download | prune-models
+    ├── pipeline.py                 ← page loading, task loop, output
+    ├── core/config.py              ← DPI presets, task names
+    ├── utils/                      ← image, io, text, quant, models, florence, prompts
+    └── backends/                   ← backend code (see backends/README.md)
+        ├── README.md               ← full backend + function documentation
+        ├── florence2_backend_flow.png
+        ├── base.py                 ← shared VLMBackend base class
+        ├── florence2.py            ← Florence-2 (default, fast on CPU)
+        ├── qwen.py                 ← Qwen2.5-VL (best quality)
+        └── got_ocr2.py             ← GOT-OCR2 (GPU only)
 ```
+
+### What each folder is for
+
+| Folder / file | Purpose |
+|---------------|---------|
+| `models/` | Hugging Face weights only — no Python code |
+| `vlm_pipeline/backends/` | Inference logic — one `.py` file per model |
+| `vlm_pipeline/utils/` | Shared helpers (image padding, download, prompts) |
+| `vlm_output/` | Run results (`results.json` + overlay PNGs) |
+| `assets/` | Bundled sample inputs and diagrams |
 
 ---
 

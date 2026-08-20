@@ -28,12 +28,14 @@ class DocumentVLMPipeline:
         dpi: int | None = None,
         max_image_size: int | None = None,
         max_tokens: int | None = None,
+        models_dir: str | None = "models",
     ):
         backend_cls = get_backend(backend)
-        kwargs: dict[str, Any] = {"quant": quant}
+        kwargs: dict[str, Any] = {"quant": quant, "models_dir": models_dir}
         if model_id:
             kwargs["model_id"] = model_id
         self.backend = backend_cls(**kwargs)
+        self.models_dir = models_dir
         self.quant = quant
         self.fast = fast
         self.dpi = dpi or (FAST_PRESETS["dpi"] if fast else None)

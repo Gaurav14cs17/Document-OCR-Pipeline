@@ -10,3 +10,7 @@ venv/
 vlm_output/*
 !vlm_output/assets_full_pipeline/
 !vlm_output/assets_full_pipeline/**
+
+# Downloaded model weights only (large; not committed)
+models/*
+!models/.gitkeep
