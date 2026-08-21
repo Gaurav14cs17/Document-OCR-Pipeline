@@ -73,8 +73,10 @@ class QwenVLBackend(VLMBackend):
             with torch.no_grad():
                 generated = self.model.generate(**inputs, max_new_tokens=max_new_tokens)
 
+            input_len = inputs["input_ids"].shape[1]
+            new_tokens = generated[:, input_len:]
             return self.processor.batch_decode(
-                generated,
+                new_tokens,
                 skip_special_tokens=True,
                 clean_up_tokenization_spaces=False,
             )[0]

@@ -24,4 +24,10 @@ def extract_json(text: str) -> Any:
     fence = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
     if fence:
         text = fence.group(1).strip()
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r"\{[\s\S]*\}", text)
+        if match:
+            return json.loads(match.group(0))
+        raise
