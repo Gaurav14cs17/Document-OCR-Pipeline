@@ -37,24 +37,29 @@ class Florence2Backend(VLMBackend):
 
         self.model_id = model_id
         self.device = self.resolve_device(device)
-        dtype = torch.float16 if self.device == "cuda" else torch.float32
+        self.dtype = torch.float16 if self.device == "cuda" else torch.float32
 
         self.processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_id,
             trust_remote_code=True,
-            torch_dtype=dtype,
+            torch_dtype=self.dtype,
             attn_implementation="eager",
         ).to(self.device)
         self.model.eval()
 
-    def _generate(self, image: Image.Image, task_prompt: str, max_new_tokens: int = 2048) -> tuple[str, int, int, int, int]:
+    def _prepare_inputs(self, image: Image.Image, task_prompt: str):
         padded, pad_x, pad_y, orig_w, orig_h = pad_info(image)
         inputs = self.processor(
             text=task_prompt,
             images=padded,
             return_tensors="pt",
         ).to(self.device)
+        inputs["pixel_values"] = inputs["pixel_values"].to(dtype=self.dtype)
+        return inputs, pad_x, pad_y, orig_w, orig_h
+
+    def _generate(self, image: Image.Image, task_prompt: str, max_new_tokens: int = 2048) -> tuple[str, int, int, int, int]:
+        inputs, pad_x, pad_y, orig_w, orig_h = self._prepare_inputs(image, task_prompt)
 
         with torch.no_grad():
             generated = self.model.generate(
