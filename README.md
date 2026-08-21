@@ -433,20 +433,6 @@ Your file (PDF/PNG)
 
 **Full backend documentation:** [vlm_pipeline/backends/README.md](vlm_pipeline/backends/README.md)
 
-### Florence-2 backend — function flow
-
-The default backend (`florence2.py`) routes each task through a shared pipeline:
-
-1. **`run_task`** — entry; picks handler via `_dispatch`
-2. **`_generate`** — pad image → processor → `model.generate` → `batch_decode`
-3. **`_parse_florence`** — `post_process_generation` → structured dict
-4. **Task handler** — `_detect`, `_ocr`, `_layout`, or `_table`
-5. **Helpers** — `pad_info`, `quad_to_bbox`, `unmap_bbox`, `clean_florence_text`
-
-![Florence2Backend function flow](vlm_pipeline/backends/florence2_backend_flow.png)
-
-See [backends/README.md](vlm_pipeline/backends/README.md) for a method-by-method explanation of every function.
-
 ---
 
 ## When things go wrong
