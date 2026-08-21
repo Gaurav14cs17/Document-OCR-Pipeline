@@ -25,7 +25,15 @@ class Florence2Backend(VLMBackend):
         device: str | None = None,
         quant: str = "auto",
     ):
+        from packaging import version
         from transformers import AutoModelForCausalLM, AutoProcessor
+        import transformers
+
+        if version.parse(transformers.__version__) >= version.parse("4.50.0"):
+            raise ImportError(
+                f"Florence-2 is incompatible with transformers {transformers.__version__}. "
+                "Install: pip install 'transformers>=4.45,<4.50'"
+            )
 
         self.model_id = model_id
         self.device = self.resolve_device(device)
