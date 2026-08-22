@@ -47,7 +47,7 @@ Image → VLM OCR → Quantize → Export → Mobile Inference
 
 All implemented **from scratch** in PyTorch — no quantization libraries required.
 
-**Layer coverage:** Notebook 02 surveys **all** module types and quantizes **Linear, Conv1d/2d/3d, and Embedding** in Stages 8–12. Flow: Stage 7b (`LayerProfile`) → Stage 8–9 (inventory + sensitivity) → Stage 11 (assign bits) → **Stage 12** (`apply_quant_plan` — load each weight, quantize, swap). `nn.Linear` gets all five methods; Conv uses per-channel RTN/AWQ; Embedding uses per-row RTN/AWQ.
+**Beginner flow (Notebook 02):** Each phase A–E defines its own **`LayerProfile`** dataclass (same name, different fields). Variables: `profiles_a` → `profiles_b` → `profiles_c` → `profiles_d` → `profiles_e`.
 
 ---
 
@@ -66,7 +66,7 @@ Each notebook is self-contained (installs its own dependencies) but follows the 
 - **Blog-style prose** with LaTeX math and formal proofs throughout
 - **No external quant libraries** — every algorithm built from first principles
 - **Mixed-precision planning** — sensitivity-driven int4/int8/fp16 per layer
-- **5-method comparison** — Stage 14 runs all quantizers on the same OCR task (notebook 02)
+- **5-method comparison** — Stage 16 runs all quantizers on the same OCR task (notebook 02)
 - **Mobile-ready** — packed binaries, ONNX, mmap, autoregressive decode
 - **Production diagnostics** — notebook 05 scorecard for KV cache, power, quant loss, and RAM
 
