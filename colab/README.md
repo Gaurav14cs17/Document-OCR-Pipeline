@@ -46,6 +46,8 @@ Image → VLM OCR → Quantize → Export → Mobile Inference
 
 All implemented **from scratch** in PyTorch — no quantization libraries required.
 
+**Layer coverage:** Notebook 02 surveys **all** module types and quantizes **Linear, Conv1d/2d/3d, and Embedding** in Stages 8–12. `nn.Linear` gets all five methods (GPTQ/AWQ/SmoothQuant/SpinQuant/ConvRot); Conv layers use per-channel RTN/AWQ; Embedding uses per-row RTN/AWQ. LayerNorm/RMSNorm/BatchNorm stay fp16. Works with LLMs, VLMs, ViTs, and CNNs.
+
 ---
 
 ## Quick Start
