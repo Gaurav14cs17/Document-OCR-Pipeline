@@ -63,7 +63,7 @@ Each notebook is self-contained (installs its own dependencies) but follows the 
 - **Blog-style prose** with LaTeX math and formal proofs throughout
 - **No external quant libraries** — every algorithm built from first principles
 - **Mixed-precision planning** — sensitivity-driven int4/int8/fp16 per layer
-- **5-method comparison** — Stage 8 runs all quantizers on the same OCR task
+- **5-method comparison** — Stage 14 runs all quantizers on the same OCR task (notebook 02)
 - **Mobile-ready** — packed binaries, ONNX, mmap, autoregressive decode
 
 ---
