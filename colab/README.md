@@ -13,7 +13,7 @@ Image → VLM OCR → Quantize → Export → Mobile Inference
 | # | Notebook | Focus |
 |---|----------|-------|
 | 01 | [Document OCR Pipeline](01_document_ocr_pipeline.ipynb) | Florence-2 OCR walkthrough — detection, recognition, layout, tables |
-| 02 | [Quantization](02_ocr_pipeline_quant.ipynb) | GPTQ · AWQ · SmoothQuant · SpinQuant · ConvRot (all from scratch) |
+| 02 | [Quantization](02_ocr_pipeline_quant.ipynb) | GPTQ · AWQ · SmoothQuant · SpinQuant · ConvRot — Phases A–E with mixed-precision planning |
 | 03 | [Mobile Export](03_ocr_pipeline_mobile.ipynb) | Packed int4 weights, ONNX export, mobile-ready artifacts |
 | 04 | [Mobile Complete](04_ocr_pipeline_mobile_complete.ipynb) | OTA delivery, mmap loading, autoregressive generate loop, native templates |
 | 05 | [Production Issues](05_mobile_production_issues.ipynb) | Papers + Identify → Solve: KV, power, quant, RAM (40+ paper refs) |
