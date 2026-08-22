@@ -16,20 +16,21 @@ Image → VLM OCR → Quantize → Export → Mobile Inference
 | 02 | [Quantization](02_ocr_pipeline_quant.ipynb) | GPTQ · AWQ · SmoothQuant · SpinQuant · ConvRot (all from scratch) |
 | 03 | [Mobile Export](03_ocr_pipeline_mobile.ipynb) | Packed int4 weights, ONNX export, mobile-ready artifacts |
 | 04 | [Mobile Complete](04_ocr_pipeline_mobile_complete.ipynb) | OTA delivery, mmap loading, autoregressive generate loop, native templates |
+| 05 | [Production Issues](05_mobile_production_issues.ipynb) | Papers + Identify → Solve: KV, power, quant, RAM (40+ paper refs) |
 
 ---
 
 ## Pipeline Overview
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│  01 OCR          02 Quantize         03 Export         04 On-Device     │
-│  ────────        ──────────          ─────────         ──────────       │
-│  Florence-2      GPTQ / AWQ /        Pack int4         mmap load        │
-│  detect+OCR      SmoothQuant /       ONNX graph        generate loop    │
-│  layout+table    SpinQuant /         mobile binary     OTA updates      │
-│                  ConvRot (W4A4)                        JNI bridge       │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│  01 OCR     02 Quantize    03 Export      04 On-Device      05 Production      │
+│  ────────   ──────────     ─────────      ──────────        ───────────        │
+│  Florence-2 GPTQ/AWQ/     Pack int4      mmap load         KV cache OOM        │
+│  detect+OCR SmoothQuant/   ONNX graph     generate loop     power / thermal      │
+│  layout     SpinQuant/     mobile binary  OTA + native      quant precision      │
+│             ConvRot        artifacts      templates         RAM breakdown        │
+└──────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -67,6 +68,29 @@ Each notebook is self-contained (installs its own dependencies) but follows the 
 - **Mixed-precision planning** — sensitivity-driven int4/int8/fp16 per layer
 - **5-method comparison** — Stage 14 runs all quantizers on the same OCR task (notebook 02)
 - **Mobile-ready** — packed binaries, ONNX, mmap, autoregressive decode
+- **Production diagnostics** — notebook 05 scorecard for KV cache, power, quant loss, and RAM
+
+---
+
+## Production Issues (Notebook 05)
+
+**Structure: Papers → Identify → Solve → Verify (step-by-step)**
+
+| Part | Stages | What you do |
+|------|--------|-------------|
+| **Literature** | Each stage opens with key papers + story arc | Read why the problem exists |
+| **Part A — Identify** | Stages 2–5 | 6 detection methods per problem + code |
+| **Part B — Solve** | Stages 6–9 | Paper-backed fixes ranked P0→P3 + code |
+| **Part C — Verify** | Stage 10 | Before/after scorecard + bibliography |
+
+### Key papers by topic
+
+| Topic | Papers cited in notebook 05 |
+|-------|----------------------------|
+| **KV cache** | Vaswani 2017, Shazeer 2019 (MQA), Ainslie 2023 (GQA), Dao 2022/23 (FlashAttention), Kwon 2023 (PagedAttention/vLLM), H2O, Scissorhands, StreamingLLM, SnapKV, KIVI, KVQuant, LM-Infinite |
+| **Power** | Yu 2022 (Orca continuous batching), Leviathan/Chen 2023 (speculative decoding), Medusa, Splitwise, PowerInfer, Apple LLM-in-a-Flash, MobileLLM |
+| **Quant loss** | Dettmers 2022 (LLM.int8), GPTQ, AWQ, SmoothQuant, SpinQuant, SqueezeLLM, QuaRot, OmniQuant, QServe |
+| **RAM** | Pope 2023, Sheng 2023 (FlexGen), ZeRO-Inference, ZeroQuant, Apple flash streaming, llama.cpp |
 
 ---
 
