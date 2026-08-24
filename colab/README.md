@@ -13,41 +13,39 @@ Image → VLM OCR → Quantize → Export → Mobile Inference
 | # | Notebook | Focus |
 |---|----------|-------|
 | 01 | [Document OCR Pipeline](01_document_ocr_pipeline.ipynb) | Florence-2 OCR walkthrough — detection, recognition, layout, tables |
-| 02 | [Quantization](02_ocr_pipeline_quant.ipynb) | GPTQ · AWQ · SmoothQuant · SpinQuant · ConvRot — Phases A–E with mixed-precision planning |
+| 02a | [GPTQ Visual Walkthrough](02_ocr_pipeline_quant_1A.ipynb) | **Start here for GPTQ** — 3×3 toy matrices, heatmaps, hooks explained step-by-step (~10 min) |
+| 02b | [GPTQ on Florence-2](02_ocr_pipeline_quant_A.ipynb) | Production GPTQ on `nn.Linear` only — scan → hook → rank → mixed-precision plan → swap |
+| 02c | [Five Quant Methods](02_ocr_pipeline_quant_B.ipynb) | GPTQ · AWQ · SmoothQuant · SpinQuant · ConvRot — Phases A–E with mixed-precision planning |
+| 02d | [Activation Calibration](02_ocr_pipeline_quant_C.ipynb) | 6 observers (MinMax, EMA, percentile, KL, MSE) — hooks + scales, no weight rounding |
 | 03 | [Mobile Export](03_ocr_pipeline_mobile.ipynb) | Packed int4 weights, ONNX export, mobile-ready artifacts |
 | 04 | [Mobile Complete](04_ocr_pipeline_mobile_complete.ipynb) | OTA delivery, mmap loading, autoregressive generate loop, native templates |
 | 05 | [Production Issues](05_mobile_production_issues.ipynb) | Papers + Identify → Solve: KV, power, quant, RAM (40+ paper refs) |
+
+### Recommended order
+
+```
+01 OCR  →  02a (optional warm-up)  →  02b OR 02c  →  02d (optional)  →  03  →  04  →  05
+```
+
+- **New to GPTQ?** Run **02a** first — tiny 3×3 network, one class per cell, visual proof of hook capture.
+- **Want one method on Florence-2?** Run **02b** (GPTQ + mixed precision, cleaner scope).
+- **Want all five methods compared?** Run **02c** (full Phases A–E, Stage 16 OCR scorecard).
+- **Care about activation scales?** Run **02d** after 02b or 02c.
 
 ---
 
 ## Pipeline Overview
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────────┐
-│  01 OCR     02 Quantize    03 Export      04 On-Device      05 Production      │
-│  ────────   ──────────     ─────────      ──────────        ───────────        │
-│  Florence-2 GPTQ/AWQ/     Pack int4      mmap load         KV cache OOM        │
-│  detect+OCR SmoothQuant/   ONNX graph     generate loop     power / thermal      │
-│  layout     SpinQuant/     mobile binary  OTA + native      quant precision      │
-│             ConvRot        artifacts      templates         RAM breakdown        │
-└──────────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────┐
+│  01 OCR     02 Quant (a→b/c→d)   03 Export      04 On-Device      05 Production            │
+│  ────────   ─────────────────    ─────────      ──────────        ───────────            │
+│  Florence-2 GPTQ/AWQ/            Pack int4      mmap load         KV cache OOM             │
+│  detect+OCR SmoothQuant/           ONNX graph     generate loop     power / thermal          │
+│  layout     SpinQuant/             mobile binary  OTA + native      quant precision          │
+│             ConvRot + observers    artifacts      templates         RAM breakdown            │
+└────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
-
----
-
-## Quantization Methods (Notebook 02)
-
-| Method | Core Idea | Complexity |
-|--------|-----------|------------|
-| **GPTQ** | Hessian-aware column-wise quantization | Per-column Cholesky update |
-| **AWQ** | Activation-aware per-channel scale search | Grid search over scales |
-| **SmoothQuant** | Migrate outliers from activations to weights | Per-channel diagonal $s_j$ |
-| **SpinQuant** | Learned Givens rotations before quantize | $O(K \cdot n_\text{rotations})$ |
-| **ConvRot** | Group-wise Regular Hadamard Transform (RHT) | $O(K)$ — plug-and-play W4A4 |
-
-All implemented **from scratch** in PyTorch — no quantization libraries required.
-
-**Beginner flow (Notebook 02):** Each phase A–E defines its own **`LayerProfile`** dataclass (same name, different fields). Variables: `profiles_a` → `profiles_b` → `profiles_c` → `profiles_d` → `profiles_e`.
 
 ---
 
@@ -59,14 +57,17 @@ All implemented **from scratch** in PyTorch — no quantization libraries requir
 
 Each notebook is self-contained (installs its own dependencies) but follows the series order for the full pipeline experience.
 
+If pip updates `transformers` or `numpy`, Colab may ask you to **restart runtime** — then click **Run all**.
+
 ---
 
 ## Key Features
 
-- **Blog-style prose** with LaTeX math and formal proofs throughout
 - **No external quant libraries** — every algorithm built from first principles
+- **Readable hooks** — named recorder classes + `register_layer_hooks` / `remove_hooks` (no nested closures)
+- **Teaching notebook (02a)** — 3×3 matrices, heatmaps, one concept per cell
 - **Mixed-precision planning** — sensitivity-driven int4/int8/fp16 per layer
-- **5-method comparison** — Stage 16 runs all quantizers on the same OCR task (notebook 02)
+- **5-method comparison** — Stage 16 in **02c** runs all quantizers on the same OCR task
 - **Mobile-ready** — packed binaries, ONNX, mmap, autoregressive decode
 - **Production diagnostics** — notebook 05 scorecard for KV cache, power, quant loss, and RAM
 
@@ -98,13 +99,15 @@ Each notebook is self-contained (installs its own dependencies) but follows the 
 
 **microsoft/Florence-2-base-ft** — a compact vision-language model for document understanding tasks (OCR, detection, layout analysis, table recognition).
 
+Notebook **01** also supports Qwen-VL backends; Florence-2 is the default for the quant and mobile series.
+
 ---
 
 ## Requirements
 
 - Python 3.10+
 - PyTorch 2.x
-- `transformers==4.49.0`
+- `transformers==4.49.0` (Florence-2 notebooks 02–05; notebook 01 pins 4.49 for Florence-2 or ≥4.51 for Qwen-VL)
 - Google Colab GPU runtime (or local CUDA)
 
 All dependencies are installed automatically in each notebook's first cell.
